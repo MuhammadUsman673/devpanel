@@ -67,8 +67,7 @@
 // //   );
 // // }
 
-// // export default App;
-// import './App.module.css';
+
 // import { Routes, Route, Navigate } from "react-router-dom";
 // import Dashboard from "./pages/Dashboard";
 // import Users from "./pages/Users";
@@ -228,9 +227,8 @@
 // }
 
 // export default App;
-
-
-import './App.module.css';
+// App.jsx - ADD THE CSS IMPORT AT THE TOP
+import "./index.css";
 import { Routes, Route } from "react-router-dom";
 
 import Dashboard from "./pages/Dashboard";
@@ -238,7 +236,7 @@ import Users from "./pages/Users";
 import Coaches from "./pages/Coaches";
 import FoodPlans from "./pages/FoodPlans";
 import Exercise from "./pages/Exercise";
-import Settings from "./pages/Settings";
+
 import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import Forgot from "./pages/Forgot";
@@ -250,119 +248,111 @@ import AddExercise from './pages/AddExercise';
 import Reset from './pages/Reset';
 import Success from './pages/Success';
 
-
 function App() {
   return (
-    <Routes>
-      {/* Auth Routes (still accessible but no protection) */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/forgot" element={<Forgot />} />
-      <Route path="/reset" element={<Reset />} />
-      <Route path="/success" element={<Success />} />
+    <div className="min-h-screen" style={{ backgroundColor: '#1a1a1a' }}> {/* Exact color */}
+      <Routes>
+        {/* Auth Routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/forgot" element={<Forgot />} />
+        <Route path="/reset" element={<Reset />} />
+        <Route path="/success" element={<Success />} />
 
-      {/* All pages are now PUBLIC — no PrivateRoute, no token check */}
-      <Route
-        path="/"
-        element={
-          <Layout>
-            <Dashboard />
-          </Layout>
-        }
-      />
+        {/* Protected Routes with Layout */}
+        <Route
+          path="/"
+          element={
+            <Layout>
+              <Dashboard />
+            </Layout>
+          }
+        />
 
-      <Route
-        path="/users"
-        element={
-          <Layout>
-            <Users />
-          </Layout>
-        }
-      />
+        <Route
+          path="/users"
+          element={
+            <Layout>
+              <Users />
+            </Layout>
+          }
+        />
 
-      <Route
-        path="/coaches"
-        element={
-          <Layout>
-            <Coaches />
-          </Layout>
-        }
-      />
+        <Route
+          path="/coaches"
+          element={
+            <Layout>
+              <Coaches />
+            </Layout>
+          }
+        />
 
-      <Route
-        path="/food-plans"
-        element={
-          <Layout>
-            <FoodPlans />
-          </Layout>
-        }
-      />
+        <Route
+          path="/food-plans"
+          element={
+            <Layout>
+              <FoodPlans />
+            </Layout>
+          }
+        />
 
-      <Route
-        path="/food-plans/add-recipe"
-        element={
-          <Layout>
-            <AddRecipe />
-          </Layout>
-        }
-      />
+        <Route
+          path="/food-plans/add-recipe"
+          element={
+            <Layout>
+              <AddRecipe />
+            </Layout>
+          }
+        />
 
-      <Route
-        path="/exercise"
-        element={
-          <Layout>
-            <Exercise />
-          </Layout>
-        }
-      />
+        <Route
+          path="/exercise"
+          element={
+            <Layout>
+              <Exercise />
+            </Layout>
+          }
+        />
 
-      <Route
-        path="/exercise/add-exercise"
-        element={
-          <Layout>
-            <AddExercise />
-          </Layout>
-        }
-      />
+        <Route
+          path="/exercise/add-exercise"
+          element={
+            <Layout>
+              <AddExercise />
+            </Layout>
+          }
+        />
 
-      <Route
-        path="/payment"
-        element={
-          <Layout>
-            <Payment />
-          </Layout>
-        }
-      />
+        <Route
+          path="/payment"
+          element={
+            <Layout>
+              <Payment />
+            </Layout>
+          }
+        />
 
-      <Route
-        path="/subscription"
-        element={
-          <Layout>
-            <Subscription />
-          </Layout>
-        }
-      />
+        <Route
+          path="/subscription"
+          element={
+            <Layout>
+              <Subscription />
+            </Layout>
+          }
+        />
 
-      <Route
-        path="/profile"
-        element={
-          <Layout>
-            <Profile />
-          </Layout>
-        }
-      />
+        <Route
+          path="/profile"
+          element={
+            <Layout>
+              <Profile />
+            </Layout>
+          }
+        />
 
-      <Route
-        path="/settings"
-        element={
-          <Layout>
-            <Settings />
-          </Layout>
-        }
-      />
-    </Routes>
+        
+      </Routes>
+    </div>
   );
 }
 
 export default App;
-
-
