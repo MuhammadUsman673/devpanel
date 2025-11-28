@@ -39,7 +39,7 @@ function Topbar() {
   return (
     <>
       <div className={styles.topbar}>
-        {/* Left Section */}
+        {/* Left Section - Welcome message hidden on mobile */}
         <div className={styles.leftSection}>
           <h3 className={styles.greeting}>Welcome, Admin</h3>
         </div>
@@ -56,9 +56,17 @@ function Topbar() {
             <span className={styles.badge}>3</span>
           </button>
 
-          {/* Profile */}
+          {/* Settings - Hidden on mobile */}
           <button
-            className={styles.iconButton}
+            className={`${styles.iconButton} ${styles.settingsButton}`}
+            aria-label="Settings"
+          >
+            <Settings size={20} />
+          </button>
+
+          {/* Profile - Always visible */}
+          <button
+            className={`${styles.iconButton} ${styles.profileButton}`}
             aria-label="Profile"
             onClick={handleProfileClick}
           >
