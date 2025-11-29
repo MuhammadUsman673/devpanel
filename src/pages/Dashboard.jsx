@@ -117,7 +117,7 @@ function Dashboard() {
   ];
 
   return (
-    <div className="ml-5 lg:ml-5 mt-12 lg:mt-12 p-4 lg:p-8 min-h-screen bg-[#1a1a1a]">
+    <div className="ml-5 lg:ml-5 mt-2 lg:mt-12 p-4 lg:p-8 min-h-screen bg-[#1a1a1a]">
       {/* Header */}
       <div className="mb-6 lg:mb-8">
         <h2 className="text-lg lg:text-xl font-bold text-white m-0 mb-2">Dashboard Overview</h2>

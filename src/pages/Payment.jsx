@@ -136,7 +136,7 @@ export default function Payment() {
   const maxValue = Math.max(...chartData.map(d => d.value));
 
   return (
-    <div className="ml-5 lg:ml-5 mt-12 lg:mt-12 p-4 lg:p-8 min-h-screen bg-[#1a1a1a]">
+    <div className="ml-5 lg:ml-5 mt-2  lg:mt-12 p-4 lg:p-8 min-h-screen bg-[#1a1a1a]">
       <div className="max-w-[1200px] mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-6 lg:mb-8 flex-wrap gap-4">

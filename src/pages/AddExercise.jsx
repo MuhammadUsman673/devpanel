@@ -28,7 +28,7 @@ function AddExercise() {
   };
 
   return (
-    <div className="ml-5 lg:ml-5 mt-12 lg:mt-12 p-4 lg:p-8 min-h-screen bg-[#1a1a1a]">
+    <div className="ml-5 lg:ml-5 mt-2  lg:mt-12 p-4 lg:p-8 min-h-screen bg-[#1a1a1a]">
       <div className="max-w-7xl mx-auto flex flex-col xl:flex-row gap-4 lg:gap-6">
         {/* Main Section */}
         <div className="flex-1 max-w-4xl">

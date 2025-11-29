@@ -38,7 +38,7 @@ function Profile() {
   };
 
   return (
-    <div className="ml-5 lg:ml-5 mt-12 lg:mt-12 p-4 lg:p-6 min-h-screen bg-[#1a1a1a]">
+    <div className="ml-5 lg:ml-5 mt-2  lg:mt-12 p-4 lg:p-6 min-h-screen bg-[#1a1a1a]">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-6 lg:mb-8">

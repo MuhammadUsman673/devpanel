@@ -59,7 +59,7 @@ const Coaches = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#1a1a1a] p-4 lg:p-8 text-gray-300 ml-5 lg:ml-5 mt-12 lg:mt-12 mr-5 lg:mr-5">
+    <div className="min-h-screen bg-[#1a1a1a] p-4 lg:p-8 text-gray-300 ml-5 lg:ml-5 mt-2  lg:mt-12 mr-5 lg:mr-5">
       {/* Header */}
       <div className="flex justify-between items-start mb-6 lg:mb-8 flex-wrap gap-4 lg:gap-5">
         <div className="flex-1 min-w-[250px]">
