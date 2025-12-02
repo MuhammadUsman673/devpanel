@@ -36,10 +36,14 @@ function Login() {
       const data = await response.json();
 
       if (response.ok) {
+        // Store token and admin data
         localStorage.setItem("adminToken", data.token);
         localStorage.setItem("adminEmail", data.admin.email);
+        localStorage.setItem("adminName", data.admin.name || "Admin");
         localStorage.setItem("adminId", data.admin.id);
-        navigate("/");
+        
+        // Navigate to dashboard - use replace to prevent back button issues
+        navigate("/", { replace: true });
       } else {
         setError(data.message || "Login failed. Please try again.");
       }

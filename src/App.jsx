@@ -236,7 +236,6 @@ import Users from "./pages/Users";
 import Coaches from "./pages/Coaches";
 import FoodPlans from "./pages/FoodPlans";
 import Exercise from "./pages/Exercise";
-
 import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import Forgot from "./pages/Forgot";
@@ -247,12 +246,13 @@ import AddRecipe from './pages/AddRecipe';
 import AddExercise from './pages/AddExercise';
 import Reset from './pages/Reset';
 import Success from './pages/Success';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#1a1a1a' }}> {/* Exact color */}
+    <div className="min-h-screen" style={{ backgroundColor: '#1a1a1a' }}>
       <Routes>
-        {/* Auth Routes */}
+        {/* Public Auth Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/forgot" element={<Forgot />} />
         <Route path="/reset" element={<Reset />} />
@@ -262,94 +262,112 @@ function App() {
         <Route
           path="/"
           element={
-            <Layout>
-              <Dashboard />
-            </Layout>
+            <ProtectedRoute>
+              <Layout>
+                <Dashboard />
+              </Layout>
+            </ProtectedRoute>
           }
         />
 
         <Route
           path="/users"
           element={
-            <Layout>
-              <Users />
-            </Layout>
+            <ProtectedRoute>
+              <Layout>
+                <Users />
+              </Layout>
+            </ProtectedRoute>
           }
         />
 
         <Route
           path="/coaches"
           element={
-            <Layout>
-              <Coaches />
-            </Layout>
+            <ProtectedRoute>
+              <Layout>
+                <Coaches />
+              </Layout>
+            </ProtectedRoute>
           }
         />
 
         <Route
           path="/food-plans"
           element={
-            <Layout>
-              <FoodPlans />
-            </Layout>
+            <ProtectedRoute>
+              <Layout>
+                <FoodPlans />
+              </Layout>
+            </ProtectedRoute>
           }
         />
 
         <Route
           path="/food-plans/add-recipe"
           element={
-            <Layout>
-              <AddRecipe />
-            </Layout>
+            <ProtectedRoute>
+              <Layout>
+                <AddRecipe />
+              </Layout>
+            </ProtectedRoute>
           }
         />
 
         <Route
           path="/exercise"
           element={
-            <Layout>
-              <Exercise />
-            </Layout>
+            <ProtectedRoute>
+              <Layout>
+                <Exercise />
+              </Layout>
+            </ProtectedRoute>
           }
         />
 
         <Route
           path="/exercise/add-exercise"
           element={
-            <Layout>
-              <AddExercise />
-            </Layout>
+            <ProtectedRoute>
+              <Layout>
+                <AddExercise />
+              </Layout>
+            </ProtectedRoute>
           }
         />
 
         <Route
           path="/payment"
           element={
-            <Layout>
-              <Payment />
-            </Layout>
+            <ProtectedRoute>
+              <Layout>
+                <Payment />
+              </Layout>
+            </ProtectedRoute>
           }
         />
 
         <Route
           path="/subscription"
           element={
-            <Layout>
-              <Subscription />
-            </Layout>
+            <ProtectedRoute>
+              <Layout>
+                <Subscription />
+              </Layout>
+            </ProtectedRoute>
           }
         />
 
         <Route
           path="/profile"
           element={
-            <Layout>
-              <Profile />
-            </Layout>
+            <ProtectedRoute>
+              <Layout>
+                <Profile />
+              </Layout>
+            </ProtectedRoute>
           }
         />
-
-        
       </Routes>
     </div>
   );

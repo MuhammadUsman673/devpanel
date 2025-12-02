@@ -3,23 +3,24 @@ export const API_BASE_URL = "http://localhost:5000";
 
 // API Endpoints
 export const API_ENDPOINTS = {
-  // Auth endpoints
+  // Admin Auth endpoints
   AUTH: {
-    SIGNUP: `${API_BASE_URL}/api/auth/signup`,
-    LOGIN: `${API_BASE_URL}/api/auth/login`,
-    VERIFY_EMAIL: `${API_BASE_URL}/api/auth/verify-email`,
-    FORGOT_PASSWORD: `${API_BASE_URL}/api/auth/forgot-password`,
-    VERIFY_RESET_CODE: `${API_BASE_URL}/api/auth/verify-reset-code`,
-    RESET_PASSWORD: `${API_BASE_URL}/api/auth/reset-password`,
+    LOGIN: `${API_BASE_URL}/api/auth/admin/login`,
+    FORGOT_PASSWORD: `${API_BASE_URL}/api/auth/admin/forgot-password`,
+    VERIFY_RESET_CODE: `${API_BASE_URL}/api/auth/admin/verify-reset-code`,
+    RESET_PASSWORD: `${API_BASE_URL}/api/auth/admin/reset-password`,
+    LOGOUT: `${API_BASE_URL}/api/auth/admin/logout`,
   },
   
-  // Add more endpoint categories as your project grows
-  // USER: {
-  //   GET_PROFILE: `${API_BASE_URL}/api/user/profile`,
-  // },
+  // Admin Profile endpoints
+  PROFILE: {
+    GET: `${API_BASE_URL}/api/auth/admin/profile`,
+    UPDATE: `${API_BASE_URL}/api/auth/admin/profile`,
+    CHANGE_PASSWORD: `${API_BASE_URL}/api/auth/admin/change-password`,
+  },
 };
 
-// Optional: Helper function for API calls
+// Helper function for API calls
 export const apiCall = async (url, options = {}) => {
   try {
     const token = localStorage.getItem("adminToken");

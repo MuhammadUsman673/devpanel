@@ -70,7 +70,7 @@ function Reset() {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage(data.message);
+        setMessage(data.message || "Password reset successfully!");
         setTimeout(() => {
           navigate("/login");
         }, 2000);
@@ -149,15 +149,19 @@ function Reset() {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Success Message */}
               {message && (
-                <div className="p-3 bg-green-100 border border-green-300 text-green-700 rounded-lg">
-                  {message}
+                <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                  <p className="text-green-400 text-sm text-center font-medium">
+                    {message}
+                  </p>
                 </div>
               )}
 
               {/* Error Message */}
               {error && (
-                <div className="p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg">
-                  {error}
+                <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                  <p className="text-red-400 text-sm text-center font-medium">
+                    {error}
+                  </p>
                 </div>
               )}
 
@@ -240,7 +244,14 @@ function Reset() {
                 className="w-full py-4 bg-gradient-to-br from-amber-500 to-amber-600 text-[#0a0a0a] font-bold rounded-xl shadow-[0_4px_20px_rgba(245,158,11,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(245,158,11,0.5)] hover:bg-gradient-to-br hover:from-amber-400 hover:to-amber-500 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none uppercase tracking-wide"
                 disabled={loading || !isPasswordValid}
               >
-                {loading ? "Resetting..." : "Reset Password"}
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <div className="w-4 h-4 border-2 border-[#0a0a0a] border-t-transparent rounded-full animate-spin"></div>
+                    Resetting...
+                  </span>
+                ) : (
+                  "Reset Password"
+                )}
               </button>
 
               {/* Back to Login */}

@@ -31,7 +31,7 @@ function Forgot() {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage(data.message);
+        setMessage(data.message || "Reset code sent to your email!");
         setStep(2);
       } else {
         setError(data.message || "Failed to send reset code.");
@@ -62,6 +62,7 @@ function Forgot() {
       const data = await response.json();
 
       if (response.ok) {
+        // Navigate to reset password page with email and code
         navigate("/reset", { state: { email, code } });
       } else {
         setError(data.message || "Invalid or expired code.");
@@ -140,15 +141,19 @@ function Forgot() {
 
             {/* Success Message */}
             {message && (
-              <div className="p-3 bg-green-100 border border-green-300 text-green-700 rounded-lg mb-4">
-                {message}
+              <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg mb-4">
+                <p className="text-green-400 text-sm text-center font-medium">
+                  {message}
+                </p>
               </div>
             )}
 
             {/* Error Message */}
             {error && (
-              <div className="p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg mb-4">
-                {error}
+              <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg mb-4">
+                <p className="text-red-400 text-sm text-center font-medium">
+                  {error}
+                </p>
               </div>
             )}
 
@@ -175,7 +180,14 @@ function Forgot() {
                   className="w-full py-4 bg-gradient-to-br from-amber-500 to-amber-600 text-[#0a0a0a] font-bold rounded-xl shadow-[0_4px_20px_rgba(245,158,11,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(245,158,11,0.5)] hover:bg-gradient-to-br hover:from-amber-400 hover:to-amber-500 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none uppercase tracking-wide"
                   disabled={loading}
                 >
-                  {loading ? "Sending..." : "Send Verification Code"}
+                  {loading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <div className="w-4 h-4 border-2 border-[#0a0a0a] border-t-transparent rounded-full animate-spin"></div>
+                      Sending...
+                    </span>
+                  ) : (
+                    "Send Verification Code"
+                  )}
                 </button>
 
                 <div className="text-center pt-5 border-t border-[rgba(255,255,255,0.1)]">
@@ -214,7 +226,14 @@ function Forgot() {
                   className="w-full py-4 bg-gradient-to-br from-amber-500 to-amber-600 text-[#0a0a0a] font-bold rounded-xl shadow-[0_4px_20px_rgba(245,158,11,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(245,158,11,0.5)] hover:bg-gradient-to-br hover:from-amber-400 hover:to-amber-500 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none uppercase tracking-wide"
                   disabled={loading}
                 >
-                  {loading ? "Verifying..." : "Verify Code"}
+                  {loading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <div className="w-4 h-4 border-2 border-[#0a0a0a] border-t-transparent rounded-full animate-spin"></div>
+                      Verifying...
+                    </span>
+                  ) : (
+                    "Verify Code"
+                  )}
                 </button>
 
                 <div className="text-center pt-5 border-t border-[rgba(255,255,255,0.1)]">
