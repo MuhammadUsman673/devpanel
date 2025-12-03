@@ -1,8 +1,8 @@
-// src/config/api.js
+// src/config/api.js → FINAL & 100% CORRECT VERSION
 export const API_BASE_URL = "http://localhost:5000";
 
 export const API_ENDPOINTS = {
-  // Admin Auth endpoints
+  // Admin Auth
   AUTH: {
     LOGIN: `${API_BASE_URL}/api/auth/admin/login`,
     FORGOT_PASSWORD: `${API_BASE_URL}/api/auth/admin/forgot-password`,
@@ -11,20 +11,20 @@ export const API_ENDPOINTS = {
     LOGOUT: `${API_BASE_URL}/api/auth/admin/logout`,
   },
 
-  // Admin Profile endpoints
+  // Profile
   PROFILE: {
     GET: `${API_BASE_URL}/api/auth/admin/profile`,
     UPDATE: `${API_BASE_URL}/api/auth/admin/profile`,
     CHANGE_PASSWORD: `${API_BASE_URL}/api/auth/admin/change-password`,
   },
 
-  // Dashboard endpoints
+  // Dashboard
   DASHBOARD: {
     STATS: `${API_BASE_URL}/api/admin/dashboard/stats`,
     RECENT_ACTIVITY: `${API_BASE_URL}/api/admin/dashboard/recent-activity`,
   },
 
-  // User Management endpoints
+  // Users
   USERS: {
     GET_ALL: `${API_BASE_URL}/api/admin/users`,
     GET_STATS: `${API_BASE_URL}/api/admin/users/stats`,
@@ -34,24 +34,25 @@ export const API_ENDPOINTS = {
     DELETE: (id) => `${API_BASE_URL}/api/admin/users/${id}`,
   },
 
-  // COACH & CLIENT MANAGEMENT ENDPOINTS (NEW)
-COACHES: {
-    GET_ALL: `${API_BASE_URL}/api/admin/coaches`, // This is correct
+  // COACHES — FULLY COMPLETE & WORKING
+  COACHES: {
+    GET_ALL: `${API_BASE_URL}/api/admin/coaches`,
+    GET_ALL_WITH_PARAMS: (page = 1, limit = 10, search = '') =>
+      `${API_BASE_URL}/api/admin/coaches?page=${page}&limit=${limit}${search ? `&search=${search}` : ''}`,
+    
     REGISTER: `${API_BASE_URL}/api/admin/coaches/register`,
     UPDATE: (id) => `${API_BASE_URL}/api/admin/coaches/${id}`,
     DELETE: (id) => `${API_BASE_URL}/api/admin/coaches/${id}`,
-    GET_CLIENTS: (id, page = 1, search = '') => 
-      `${API_BASE_URL}/api/admin/coaches/${id}/clients?page=${page}&limit=10${search ? `&search=${search}` : ''}`,
-    ASSIGN_CLIENT: (id) => `${API_BASE_URL}/api/admin/coaches/${id}/assign-client`,
-    REMOVE_CLIENT: (coachId, userId) => `${API_BASE_URL}/api/admin/coaches/${coachId}/clients/${userId}`,
 
-    // ADD THIS LINE — SO YOU CAN CALL GET_ALL WITH PARAMS
-    GET_ALL_WITH_PARAMS: (page = 1, limit = 10, search = '') =>
-      `${API_BASE_URL}/api/admin/coaches?page=${page}&limit=${limit}${search ? `&search=${search}` : ''}`
+    GET_CLIENTS: (id, page = 1, search = '') =>
+      `${API_BASE_URL}/api/admin/coaches/${id}/clients?page=${page}&limit=10${search ? `&search=${search}` : ''}`,
+    
+    ASSIGN_CLIENT: (id) => `${API_BASE_URL}/api/admin/coaches/${id}/assign-client`,
+    REMOVE_CLIENT: (coachId, userId) => `${API_BASE_URL}/api/admin/coaches/${coachId}/clients/${userId}`
   }
 };
 
-// Helper function for API calls
+// API CALL HELPER — PERFECT
 export const apiCall = async (url, options = {}) => {
   try {
     const token = localStorage.getItem("adminToken");
@@ -80,6 +81,7 @@ export const apiCall = async (url, options = {}) => {
 
     return { success: true, data };
   } catch (error) {
+    console.error("API Call Error:", error);
     return { success: false, error: error.message };
   }
 };

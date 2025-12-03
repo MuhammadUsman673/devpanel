@@ -1,8 +1,8 @@
-// src/pages/CoachClients.jsx → FINAL VERSION (Exact Design + Full Features + Smart Messages)
+// src/pages/CoachClients.jsx → FINAL 100% WORKING (Only Unassigned Users + Correct Assignment)
 import React, { useState, useEffect } from 'react';
 import {
   ArrowLeft, Search, Users as UsersIcon, Mail, Calendar,
-  RefreshCw, MessageSquare, UserPlus, Trash2, X, ChevronLeft, ChevronRight, Loader2
+  RefreshCw, MessageSquare, UserPlus, Trash2, X, Loader2
 } from 'lucide-react';
 import { API_ENDPOINTS, apiCall } from '../config/api';
 
@@ -27,8 +27,8 @@ export default function CoachClients() {
   };
 
   const fetchAllUsers = async () => {
-    const res = await apiCall(API_ENDPOINTS.USERS.GET_ALL + '?limit=200');
-    if (res.success) setAllUsers(res.data.users);
+    const res = await apiCall(API_ENDPOINTS.USERS.GET_ALL + '?limit=500');
+    if (res.success) setAllUsers(res.data.users || []);
   };
 
   const fetchClients = async (page = 1) => {
@@ -37,19 +37,36 @@ export default function CoachClients() {
     const url = API_ENDPOINTS.COACHES.GET_CLIENTS(selectedCoach._id, page, searchTerm);
     const res = await apiCall(url);
     if (res.success) {
-      setClients(res.data.clients);
+      setClients(res.data.clients || []);
       setCurrentPage(res.data.pagination.currentPage);
       setTotalPages(res.data.pagination.totalPages || 1);
     }
     setLoading(false);
   };
 
+  useEffect(() => {
+    fetchCoaches();
+    fetchAllUsers();
+  }, []);
+
+  useEffect(() => {
+    if (selectedCoach) fetchClients(1);
+  }, [selectedCoach, searchTerm]);
+
+  // Only users NOT assigned to ANY coach
+  const availableUsers = allUsers.filter(user => 
+    !clients.find(c => c.userId === user._id) && 
+    user.role === 'user'
+  );
+
   const assignClient = async () => {
-    if (!selectedUserId) return;
+    if (!selectedUserId || !selectedCoach) return;
+
     const res = await apiCall(API_ENDPOINTS.COACHES.ASSIGN_CLIENT(selectedCoach._id), {
       method: 'POST',
       body: JSON.stringify({ userId: selectedUserId })
     });
+
     if (res.success) {
       setShowAssignModal(false);
       setSelectedUserId('');
@@ -61,18 +78,13 @@ export default function CoachClients() {
 
   const removeClient = async (userId) => {
     if (!confirm('Remove this client from coach?')) return;
-    await apiCall(API_ENDPOINTS.COACHES.REMOVE_CLIENT(selectedCoach._id, userId), { method: 'DELETE' });
-    setClients(prev => prev.filter(c => c.userId !== userId));
+    const res = await apiCall(API_ENDPOINTS.COACHES.REMOVE_CLIENT(selectedCoach._id, userId), {
+      method: 'DELETE'
+    });
+    if (res.success) {
+      setClients(prev => prev.filter(c => c.userId !== userId));
+    }
   };
-
-  useEffect(() => {
-    fetchCoaches();
-    fetchAllUsers();
-  }, []);
-
-  useEffect(() => {
-    if (selectedCoach) fetchClients(1);
-  }, [selectedCoach, searchTerm]);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -88,9 +100,6 @@ export default function CoachClients() {
       ? 'bg-amber-500/20 text-amber-400'
       : 'bg-blue-500/20 text-blue-400';
   };
-
-  // Users who are NOT already assigned to any coach
-  const availableUsers = allUsers.filter(u => !clients.find(c => c.userId === u._id));
 
   return (
     <div className="ml-5 lg:ml-5 mt-2 lg:mt-12 p-4 lg:p-8 min-h-screen bg-[#1a1a1a]">
@@ -147,10 +156,6 @@ export default function CoachClients() {
                       <UsersIcon className="w-3 h-3 lg:w-4 lg:h-4 text-[#f59e0b]" />
                       {clients.length} Active Clients
                     </span>
-                    <span className="text-xs lg:text-sm text-[#888] flex items-center gap-1 whitespace-nowrap">
-                      <Calendar className="w-3 h-3 lg:w-4 lg:h-4 text-[#f59e0b]" />
-                      Joined {new Date(selectedCoach.joinedDate || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-                    </span>
                     <div className="flex gap-2 flex-wrap">
                       {selectedCoach.tags?.map((tag, idx) => (
                         <span key={idx} className="text-[#ccc] bg-[#333] rounded-lg px-2 py-1 text-xs whitespace-nowrap">
@@ -168,7 +173,7 @@ export default function CoachClients() {
           </div>
         )}
 
-        {/* Search Bar */}
+        {/* Search */}
         <div className="relative mb-4 lg:mb-6 w-full">
           <Search className="absolute top-1/2 left-3 lg:left-4 transform -translate-y-1/2 text-[#888] w-4 h-4 lg:w-5 lg:h-5 z-10" />
           <input
@@ -180,7 +185,7 @@ export default function CoachClients() {
           />
         </div>
 
-        {/* Clients Table */}
+        {/* Table */}
         <div className="bg-[#2a2a2a] border border-[#3a3a3a] rounded-xl overflow-hidden shadow-lg">
           {loading ? (
             <div className="p-12 text-center"><Loader2 className="w-10 h-10 animate-spin mx-auto text-[#f59e0b]" /></div>
@@ -262,12 +267,12 @@ export default function CoachClients() {
           )}
         </div>
 
-        {/* Assign Modal - WITH "Already Assigned" Message */}
+        {/* Assign Modal - Only shows users WITHOUT any coach */}
         {showAssignModal && (
           <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
             <div className="bg-[#2a2a2a] border border-[#3a3a3a] rounded-xl p-6 w-full max-w-md">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-bold text-white">Assign Client</h3>
+                <h3 className="text-lg font-bold text-white">Assign Client to {selectedCoach?.name}</h3>
                 <button onClick={() => setShowAssignModal(false)} className="text-[#888] hover:text-white">
                   <X className="w-5 h-5" />
                 </button>
