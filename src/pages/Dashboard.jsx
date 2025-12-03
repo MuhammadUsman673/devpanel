@@ -1,4 +1,5 @@
 // src/components/Dashboard.jsx
+import { useState, useEffect } from "react";
 import { 
   Users, 
   DollarSign, 
@@ -7,83 +8,127 @@ import {
   TrendingUp,
   Clock,
   UserCheck,
-  AlertCircle
+  AlertCircle,
+  Loader2
 } from "lucide-react";
+import { API_ENDPOINTS, apiCall } from "../config/api";
 
 function Dashboard() {
-  const stats = [
+  const [dashboardStats, setDashboardStats] = useState(null);
+  const [recentActivity, setRecentActivity] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch dashboard data on mount
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Fetch stats and activities in parallel
+      const [statsResult, activityResult] = await Promise.all([
+        apiCall(API_ENDPOINTS.DASHBOARD.STATS),
+        apiCall(API_ENDPOINTS.DASHBOARD.RECENT_ACTIVITY)
+      ]);
+
+      if (statsResult.success) {
+        setDashboardStats(statsResult.data.stats);
+      } else {
+        throw new Error(statsResult.error);
+      }
+
+      if (activityResult.success) {
+        setRecentActivity(activityResult.data.activities);
+      }
+
+      setLoading(false);
+    } catch (err) {
+      console.error('Dashboard fetch error:', err);
+      setError(err.message || 'Failed to load dashboard data');
+      setLoading(false);
+    }
+  };
+
+  // Format timestamp to relative time
+  const formatTimeAgo = (timestamp) => {
+    const now = new Date();
+    const time = new Date(timestamp);
+    const diffInSeconds = Math.floor((now - time) / 1000);
+
+    if (diffInSeconds < 60) return 'Just now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+    return `${Math.floor(diffInSeconds / 86400)} days ago`;
+  };
+
+  // Get activity icon and styling based on type
+  const getActivityIcon = (type, status) => {
+    if (type === 'user_registered') {
+      return {
+        icon: UserCheck,
+        color: status === 'verified' ? '#10b981' : '#f59e0b',
+        bgColor: status === 'verified' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)',
+        iconColor: status === 'verified' ? '#10b981' : '#f59e0b'
+      };
+    } else if (type === 'coach_added') {
+      return {
+        icon: Users,
+        color: '#667eea',
+        bgColor: 'rgba(102, 126, 234, 0.1)',
+        iconColor: '#667eea'
+      };
+    }
+    return {
+      icon: AlertCircle,
+      color: '#888',
+      bgColor: 'rgba(136, 136, 136, 0.1)',
+      iconColor: '#888'
+    };
+  };
+
+  // Stats configuration with API data
+  const stats = dashboardStats ? [
     {
       title: "Total Users",
-      value: "1,234",
-      change: "+12%",
+      value: dashboardStats.totalUsers.count.toLocaleString(),
+      change: dashboardStats.totalUsers.growth,
       icon: Users,
       color: "#667eea",
       bgColor: "rgba(102, 126, 234, 0.1)",
       iconColor: "#667eea"
     },
     {
-      title: "Revenue",
-      value: "$56,789",
-      change: "+23%",
-      icon: DollarSign,
+      title: "Active Users",
+      value: dashboardStats.activeUsers.count.toLocaleString(),
+      change: "+0%",
+      icon: Activity,
       color: "#10b981",
       bgColor: "rgba(16, 185, 129, 0.1)",
       iconColor: "#10b981"
     },
     {
-      title: "Active Sessions",
-      value: "456",
-      change: "+8%",
-      icon: Activity,
+      title: "Total Coaches",
+      value: dashboardStats.totalCoaches.count.toLocaleString(),
+      change: "+0%",
+      icon: DollarSign,
       color: "#f59e0b",
       bgColor: "rgba(245, 158, 11, 0.1)",
       iconColor: "#f59e0b"
     },
     {
-      title: "Tasks Completed",
-      value: "892",
-      change: "+15%",
+      title: "Pending Users",
+      value: dashboardStats.pendingUsers.count.toLocaleString(),
+      change: "+0%",
       icon: CheckCircle,
       color: "#8b5cf6",
       bgColor: "rgba(139, 92, 246, 0.1)",
       iconColor: "#8b5cf6"
     }
-  ];
-
-  const recentActivity = [
-    { 
-      icon: UserCheck, 
-      text: "45 new users registered", 
-      time: "2 hours ago", 
-      color: "#667eea",
-      bgColor: "rgba(102, 126, 234, 0.1)",
-      iconColor: "#667eea"
-    },
-    { 
-      icon: Clock, 
-      text: "12 pending tasks to review", 
-      time: "4 hours ago", 
-      color: "#f59e0b",
-      bgColor: "rgba(245, 158, 11, 0.1)",
-      iconColor: "#f59e0b"
-    },
-    { 
-      icon: TrendingUp, 
-      text: "Revenue increased by 23%", 
-      time: "1 day ago", 
-      color: "#10b981",
-      bgColor: "rgba(16, 185, 129, 0.1)",
-      iconColor: "#10b981"
-    },
-    { 
-      icon: AlertCircle, 
-      text: "3 system alerts", 
-      time: "2 days ago", 
-      color: "#ef4444",
-      bgColor: "rgba(239, 68, 68, 0.1)",
-      iconColor: "#ef4444"
-    }
-  ];
+  ] : [];
 
   const quickActions = [
     {
@@ -115,6 +160,39 @@ function Dashboard() {
       iconColor: "#f59e0b"
     }
   ];
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="ml-5 lg:ml-5 mt-2 lg:mt-12 p-4 lg:p-8 min-h-screen bg-[#1a1a1a] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-12 h-12 text-amber-500 animate-spin" />
+          <p className="text-[#888] text-sm">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="ml-5 lg:ml-5 mt-2 lg:mt-12 p-4 lg:p-8 min-h-screen bg-[#1a1a1a] flex items-center justify-center">
+        <div className="bg-[#2a2a2a] border border-red-500/20 rounded-xl p-6 max-w-md">
+          <div className="flex items-center gap-3 mb-3">
+            <AlertCircle className="w-6 h-6 text-red-500" />
+            <h3 className="text-lg font-semibold text-white">Error Loading Dashboard</h3>
+          </div>
+          <p className="text-[#888] mb-4">{error}</p>
+          <button 
+            onClick={fetchDashboardData}
+            className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="ml-5 lg:ml-5 mt-2 lg:mt-12 p-4 lg:p-8 min-h-screen bg-[#1a1a1a]">
@@ -158,29 +236,42 @@ function Dashboard() {
           <div className="flex justify-between items-center mb-4 lg:mb-5 flex-wrap gap-2">
             <h3 className="text-base lg:text-lg font-semibold text-white m-0">Recent Activity</h3>
             <button 
+              onClick={fetchDashboardData}
               className="bg-transparent border-none text-amber-500 text-xs lg:text-sm font-semibold cursor-pointer px-2 py-1 rounded transition-all duration-200 hover:bg-[#252525] whitespace-nowrap hover:text-amber-400"
             >
-              View All
+              Refresh
             </button>
           </div>
           <div className="flex flex-col gap-3 lg:gap-4">
-            {recentActivity.map((activity, index) => {
-              const Icon = activity.icon;
-              return (
-                <div key={index} className="flex items-start gap-3 group">
-                  <div 
-                    className="w-8 h-8 lg:w-10 lg:h-10 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200 group-hover:scale-110"
-                    style={{ backgroundColor: activity.bgColor }}
-                  >
-                    <Icon size={16} className="lg:size-5 transition-colors duration-200" style={{ color: activity.iconColor }} />
+            {recentActivity.length > 0 ? (
+              recentActivity.slice(0, 5).map((activity, index) => {
+                const activityStyle = getActivityIcon(activity.type, activity.status);
+                const Icon = activityStyle.icon;
+                return (
+                  <div key={index} className="flex items-start gap-3 group">
+                    <div 
+                      className="w-8 h-8 lg:w-10 lg:h-10 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200 group-hover:scale-110"
+                      style={{ backgroundColor: activityStyle.bgColor }}
+                    >
+                      <Icon size={16} className="lg:size-5 transition-colors duration-200" style={{ color: activityStyle.iconColor }} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs lg:text-sm text-[#ccc] mb-1 truncate group-hover:text-white transition-colors duration-200">
+                        {activity.message}
+                      </p>
+                      <span className="text-xs text-[#888] whitespace-nowrap group-hover:text-[#ccc] transition-colors duration-200">
+                        {formatTimeAgo(activity.timestamp)}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs lg:text-sm text-[#ccc] mb-1 truncate group-hover:text-white transition-colors duration-200">{activity.text}</p>
-                    <span className="text-xs text-[#888] whitespace-nowrap group-hover:text-[#ccc] transition-colors duration-200">{activity.time}</span>
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })
+            ) : (
+              <div className="text-center py-8">
+                <Clock className="w-12 h-12 text-[#444] mx-auto mb-2" />
+                <p className="text-[#888] text-sm">No recent activity</p>
+              </div>
+            )}
           </div>
         </div>
 

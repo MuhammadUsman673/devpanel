@@ -18,6 +18,12 @@ export const API_ENDPOINTS = {
     UPDATE: `${API_BASE_URL}/api/auth/admin/profile`,
     CHANGE_PASSWORD: `${API_BASE_URL}/api/auth/admin/change-password`,
   },
+
+  // Dashboard endpoints
+  DASHBOARD: {
+    STATS: `${API_BASE_URL}/api/admin/dashboard/stats`,
+    RECENT_ACTIVITY: `${API_BASE_URL}/api/admin/dashboard/recent-activity`,
+  },
 };
 
 // Helper function for API calls
