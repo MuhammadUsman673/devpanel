@@ -20,7 +20,8 @@ function Sidebar() {
 
   const menuItems = [
     { path: "/", label: "Dashboard", icon: LayoutDashboard },
-    { path: "/users", label: "Users", icon: Users },
+    { path: "/users", label: "CoachAssignments", icon: Users },
+    { path: "/users-management", label: "UsersManagement", icon: Users },
     { path: "/coaches", label: "Coaches", icon: UserCog },
     { path: "/food-plans", label: "Food Plans", icon: UtensilsCrossed },
     { path: "/exercise", label: "Exercise", icon: Dumbbell },

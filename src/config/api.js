@@ -24,6 +24,16 @@ export const API_ENDPOINTS = {
     STATS: `${API_BASE_URL}/api/admin/dashboard/stats`,
     RECENT_ACTIVITY: `${API_BASE_URL}/api/admin/dashboard/recent-activity`,
   },
+
+  // User Management endpoints
+  USERS: {
+    GET_ALL: `${API_BASE_URL}/api/admin/users`,
+    GET_STATS: `${API_BASE_URL}/api/admin/users/stats`,
+    GET_BY_ID: (id) => `${API_BASE_URL}/api/admin/users/${id}`,
+    UPDATE: (id) => `${API_BASE_URL}/api/admin/users/${id}`,
+    TOGGLE_STATUS: (id) => `${API_BASE_URL}/api/admin/users/${id}/status`,
+    DELETE: (id) => `${API_BASE_URL}/api/admin/users/${id}`,
+  },
 };
 
 // Helper function for API calls
@@ -50,7 +60,7 @@ export const apiCall = async (url, options = {}) => {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.message || "Something went wrong");
+      throw new Error(data.error || data.message || "Something went wrong");
     }
 
     return { success: true, data };
