@@ -1,7 +1,6 @@
-// Base URL for your backend API
+// src/config/api.js
 export const API_BASE_URL = "http://localhost:5000";
 
-// API Endpoints
 export const API_ENDPOINTS = {
   // Admin Auth endpoints
   AUTH: {
@@ -11,7 +10,7 @@ export const API_ENDPOINTS = {
     RESET_PASSWORD: `${API_BASE_URL}/api/auth/admin/reset-password`,
     LOGOUT: `${API_BASE_URL}/api/auth/admin/logout`,
   },
-  
+
   // Admin Profile endpoints
   PROFILE: {
     GET: `${API_BASE_URL}/api/auth/admin/profile`,
@@ -34,6 +33,22 @@ export const API_ENDPOINTS = {
     TOGGLE_STATUS: (id) => `${API_BASE_URL}/api/admin/users/${id}/status`,
     DELETE: (id) => `${API_BASE_URL}/api/admin/users/${id}`,
   },
+
+  // COACH & CLIENT MANAGEMENT ENDPOINTS (NEW)
+COACHES: {
+    GET_ALL: `${API_BASE_URL}/api/admin/coaches`, // This is correct
+    REGISTER: `${API_BASE_URL}/api/admin/coaches/register`,
+    UPDATE: (id) => `${API_BASE_URL}/api/admin/coaches/${id}`,
+    DELETE: (id) => `${API_BASE_URL}/api/admin/coaches/${id}`,
+    GET_CLIENTS: (id, page = 1, search = '') => 
+      `${API_BASE_URL}/api/admin/coaches/${id}/clients?page=${page}&limit=10${search ? `&search=${search}` : ''}`,
+    ASSIGN_CLIENT: (id) => `${API_BASE_URL}/api/admin/coaches/${id}/assign-client`,
+    REMOVE_CLIENT: (coachId, userId) => `${API_BASE_URL}/api/admin/coaches/${coachId}/clients/${userId}`,
+
+    // ADD THIS LINE — SO YOU CAN CALL GET_ALL WITH PARAMS
+    GET_ALL_WITH_PARAMS: (page = 1, limit = 10, search = '') =>
+      `${API_BASE_URL}/api/admin/coaches?page=${page}&limit=${limit}${search ? `&search=${search}` : ''}`
+  }
 };
 
 // Helper function for API calls

@@ -1,28 +1,62 @@
+// src/components/RegisterCoachModal.jsx → FULLY FUNCTIONAL + REAL API
 import React, { useState } from 'react';
+import { apiCall } from '../config/api'; // Make sure this path is correct
 
-const RegisterCoachModal = ({ isOpen, onClose }) => {
+const RegisterCoachModal = ({ isOpen, onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
-    fullName: '',
+    name: '',
     email: '',
     password: '',
     specialty: '',
     phone: '',
     experience: '',
-    certifications: ''
+    certifications: '',
+    tags: [] // we'll extract from specialty
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
+    setError('');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    onClose();
+    setLoading(true);
+    setError('');
+
+    // Extract tags from specialty (e.g. "CrossFit, Yoga" → ["CrossFit", "Yoga"])
+    const tags = formData.specialty
+      .split(',')
+      .map(tag => tag.trim())
+      .filter(tag => tag.length > 0);
+
+    const payload = {
+      name: formData.name.trim(),
+      email: formData.email.toLowerCase().trim(),
+      password: formData.password,
+      tags,
+      phone: formData.phone,
+      experience: formData.experience,
+      certifications: formData.certifications
+    };
+
+    const res = await apiCall('http://localhost:5000/api/admin/coaches/register', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+
+    setLoading(false);
+
+    if (res.success) {
+      alert('Coach registered successfully!');
+      onSuccess?.(); // Refresh coach list
+      onClose();
+    } else {
+      setError(res.error || 'Failed to register coach. Please try again.');
+    }
   };
 
   if (!isOpen) return null;
@@ -42,7 +76,7 @@ const RegisterCoachModal = ({ isOpen, onClose }) => {
           <button 
             className="bg-transparent border-none text-[#9ca3af] cursor-pointer p-1 flex items-center justify-center rounded-lg transition-all duration-200 hover:bg-[#2d2d2d] hover:text-[#e5e5e5]"
             onClick={onClose}
-            aria-label="Close modal"
+            disabled={loading}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -53,96 +87,101 @@ const RegisterCoachModal = ({ isOpen, onClose }) => {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6">
+          {error && (
+            <div className="mb-4 p-4 bg-red-500/20 border border-red-500/50 rounded-lg text-red-400 text-sm">
+              {error}
+            </div>
+          )}
+
           {/* Full Name */}
           <div className="mb-5">
-            <label htmlFor="fullName" className="block text-xs font-medium text-[#d1d5db] mb-2">Full Name</label>
+            <label className="block text-xs font-medium text-[#d1d5db] mb-2">Full Name</label>
             <input
               type="text"
-              id="fullName"
-              name="fullName"
-              value={formData.fullName}
+              name="name"
+              value={formData.name}
               onChange={handleChange}
               placeholder="e.g. John Doe"
               className="w-full px-3.5 py-3 bg-[#0a0a0a] border border-[#2d2d2d] rounded-lg text-[#e5e5e5] text-sm transition-all duration-200 outline-none placeholder:text-[#6b7280] hover:border-[#3d3d3d] focus:border-amber-500 focus:bg-[#111111]"
               required
+              disabled={loading}
             />
           </div>
 
-          {/* Email Address */}
+          {/* Email */}
           <div className="mb-5">
-            <label htmlFor="email" className="block text-xs font-medium text-[#d1d5db] mb-2">Email Address</label>
+            <label className="block text-xs font-medium text-[#d1d5db] mb-2">Email Address</label>
             <input
               type="email"
-              id="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
               placeholder="e.g. john.doe@example.com"
               className="w-full px-3.5 py-3 bg-[#0a0a0a] border border-[#2d2d2d] rounded-lg text-[#e5e5e5] text-sm transition-all duration-200 outline-none placeholder:text-[#6b7280] hover:border-[#3d3d3d] focus:border-amber-500 focus:bg-[#111111]"
               required
+              disabled={loading}
             />
           </div>
 
-          {/* Temporary Password */}
+          {/* Password */}
           <div className="mb-5">
-            <label htmlFor="password" className="block text-xs font-medium text-[#d1d5db] mb-2">Temporary Password</label>
+            <label className="block text-xs font-medium text-[#d1d5db] mb-2">Temporary Password</label>
             <input
               type="password"
-              id="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
-              placeholder="••••••••"
+              placeholder="Minimum 6 characters"
+              minLength="6"
               className="w-full px-3.5 py-3 bg-[#0a0a0a] border border-[#2d2d2d] rounded-lg text-[#e5e5e5] text-sm transition-all duration-200 outline-none placeholder:text-[#6b7280] hover:border-[#3d3d3d] focus:border-amber-500 focus:bg-[#111111]"
               required
+              disabled={loading}
             />
           </div>
 
-          {/* Specialty */}
+          {/* Specialty (Tags) */}
           <div className="mb-5">
-            <label htmlFor="specialty" className="block text-xs font-medium text-[#d1d5db] mb-2">Specialty</label>
+            <label className="block text-xs font-medium text-[#d1d5db] mb-2">Specialty (comma separated)</label>
             <input
               type="text"
-              id="specialty"
               name="specialty"
               value={formData.specialty}
               onChange={handleChange}
-              placeholder="e.g. Body Building, CrossFit"
+              placeholder="e.g. CrossFit, Yoga, Body Building"
               className="w-full px-3.5 py-3 bg-[#0a0a0a] border border-[#2d2d2d] rounded-lg text-[#e5e5e5] text-sm transition-all duration-200 outline-none placeholder:text-[#6b7280] hover:border-[#3d3d3d] focus:border-amber-500 focus:bg-[#111111]"
               required
+              disabled={loading}
             />
+            <p className="text-xs text-[#6b7280] mt-1">Separate multiple with commas</p>
           </div>
 
-          {/* Phone Number */}
+          {/* Phone */}
           <div className="mb-5">
-            <label htmlFor="phone" className="block text-xs font-medium text-[#d1d5db] mb-2">Phone Number</label>
+            <label className="block text-xs font-medium text-[#d1d5db] mb-2">Phone Number</label>
             <input
               type="tel"
-              id="phone"
               name="phone"
               value={formData.phone}
               onChange={handleChange}
-              placeholder="e.g. +1 (555) 123-4567"
+              placeholder="+1 (555) 123-4567"
               className="w-full px-3.5 py-3 bg-[#0a0a0a] border border-[#2d2d2d] rounded-lg text-[#e5e5e5] text-sm transition-all duration-200 outline-none placeholder:text-[#6b7280] hover:border-[#3d3d3d] focus:border-amber-500 focus:bg-[#111111]"
-              required
+              disabled={loading}
             />
           </div>
 
-          {/* Years of Experience */}
+          {/* Experience */}
           <div className="mb-5">
-            <label htmlFor="experience" className="block text-xs font-medium text-[#d1d5db] mb-2">Years of Experience</label>
-          <select
-  id="experience"
-  name="experience"
-  value={formData.experience}
-  onChange={handleChange}
-  className="w-full px-3.5 py-3 bg-[#0a0a0a] border border-[#2d2d2d] rounded-lg text-[#e5e5e5] text-sm transition-all duration-200 outline-none cursor-pointer appearance-none pr-10 hover:border-[#3d3d3d] focus:border-amber-500 focus:bg-[#111111] bg-right bg-no-repeat"
-  style={{
-    backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%239ca3af' stroke-width='1.5'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E\")"
-  }}
-  required
->
-              <option value="">Select experience level</option>
+            <label className="block text-xs font-medium text-[#d1d5db] mb-2">Years of Experience</label>
+            <select
+              name="experience"
+              value={formData.experience}
+              onChange={handleChange}
+              className="w-full px-3.5 py-3 bg-[#0a0a0a] border border-[#2d2d2d] rounded-lg text-[#e5e5e5] text-sm transition-all duration-200 outline-none cursor-pointer appearance-none pr-10 hover:border-[#3d3d3d] focus:border-amber-500 focus:bg-[#111111]"
+              style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%239ca3af' stroke-width='1.5'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E\")", backgroundPosition: 'right 12px center', backgroundRepeat: 'no-repeat' }}
+              required
+              disabled={loading}
+            >
+              <option value="">Select experience</option>
               <option value="0-1">0-1 years</option>
               <option value="1-3">1-3 years</option>
               <option value="3-5">3-5 years</option>
@@ -153,137 +192,48 @@ const RegisterCoachModal = ({ isOpen, onClose }) => {
 
           {/* Certifications */}
           <div className="mb-6">
-            <label htmlFor="certifications" className="block text-xs font-medium text-[#d1d5db] mb-2">Certifications</label>
+            <label className="block text-xs font-medium text-[#d1d5db] mb-2">Certifications</label>
             <textarea
-              id="certifications"
               name="certifications"
               value={formData.certifications}
               onChange={handleChange}
-              placeholder="e.g. NASM-CPT, ACSM-CPT, etc."
-              className="w-full px-3.5 py-3 bg-[#0a0a0a] border border-[#2d2d2d] rounded-lg text-[#e5e5e5] text-sm transition-all duration-200 outline-none placeholder:text-[#6b7280] hover:border-[#3d3d3d] focus:border-amber-500 focus:bg-[#111111] resize-vertical min-h-[80px] leading-relaxed"
+              placeholder="NASM-CPT, CrossFit Level 2, etc."
+              className="w-full px-3.5 py-3 bg-[#0a0a0a] border border-[#2d2d2d] rounded-lg text-[#e5e5e5] text-sm transition-all duration-200 outline-none placeholder:text-[#6b7280] hover:border-[#3d3d3d] focus:border-amber-500 focus:bg-[#111111] resize-vertical min-h-[80px]"
               rows="3"
-              required
+              disabled={loading}
             />
           </div>
 
-          {/* Action Buttons */}
+          {/* Buttons */}
           <div className="flex gap-3 mt-7 pt-5 border-t border-[#2d2d2d]">
             <button 
-              type="button" 
-              className="flex-1 bg-[#2d2d2d] text-[#e5e5e5] border-none px-5 py-3 rounded-lg text-sm font-semibold cursor-pointer transition-all duration-200 hover:bg-[#3d3d3d] active:scale-98"
+              type="button"
               onClick={onClose}
+              disabled={loading}
+              className="flex-1 bg-[#2d2d2d] text-[#e5e5e5] border-none px-5 py-3 rounded-lg text-sm font-semibold cursor-pointer transition-all duration-200 hover:bg-[#3d3d3d] disabled:opacity-50"
             >
               Cancel
             </button>
             <button 
-              type="submit" 
-              className="flex-1 bg-amber-500 text-[#0a0a0a] border-none px-5 py-3 rounded-lg text-sm font-semibold cursor-pointer transition-all duration-200 hover:bg-amber-600 active:scale-98"
+              type="submit"
+              disabled={loading}
+              className="flex-1 bg-amber-500 text-[#0a0a0a] border-none px-5 py-3 rounded-lg text-sm font-semibold cursor-pointer transition-all duration-200 hover:bg-amber-600 disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              Register Coach
+              {loading ? (
+                <>Registering...</>
+              ) : (
+                'Register Coach'
+              )}
             </button>
           </div>
         </form>
       </div>
 
-      {/* Custom Animations and Styles */}
       <style jsx global>{`
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-        @keyframes slide-up {
-          from {
-            transform: translateY(20px);
-            opacity: 0;
-          }
-          to {
-            transform: translateY(0);
-            opacity: 1;
-          }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.2s ease-out;
-        }
-        .animate-slide-up {
-          animation: slide-up 0.3s ease-out;
-        }
-        .active\\:scale-98:active {
-          transform: scale(0.98);
-        }
-
-        /* Custom Scrollbar */
-        .overflow-y-auto::-webkit-scrollbar {
-          width: 8px;
-        }
-        .overflow-y-auto::-webkit-scrollbar-track {
-          background: #0a0a0a;
-          border-radius: 0 12px 12px 0;
-        }
-        .overflow-y-auto::-webkit-scrollbar-thumb {
-          background: #374151;
-          border-radius: 4px;
-        }
-        .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-          background: #4b5563;
-        }
-
-        /* Focus visible for accessibility */
-        input:focus-visible,
-        select:focus-visible,
-        textarea:focus-visible,
-        button:focus-visible {
-          outline: 2px solid #f59e0b;
-          outline-offset: 2px;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 640px) {
-          .modal-overlay {
-            padding: 0;
-            align-items: flex-end;
-          }
-          .modal-content {
-            max-width: 100%;
-            border-radius: 12px 12px 0 0;
-            max-height: 95vh;
-          }
-          .modal-header {
-            padding: 20px 20px 16px 20px;
-          }
-          .modal-title {
-            font-size: 20px;
-          }
-          .form-container {
-            padding: 20px;
-          }
-          .form-actions {
-            flex-direction: column-reverse;
-            gap: 10px;
-          }
-          .cancel-btn,
-          .submit-btn {
-            width: 100%;
-          }
-        }
-
-        /* Disabled state */
-        input:disabled,
-        select:disabled,
-        textarea:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-        button:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-        button:disabled:hover {
-          transform: none;
-        }
+        @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slide-up { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .animate-fade-in { animation: fade-in 0.2s ease-out; }
+        .animate-slide-up { animation: slide-up 0.3s ease-out; }
       `}</style>
     </div>
   );
